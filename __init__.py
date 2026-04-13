@@ -10,6 +10,12 @@ from .nodes.hy_feta_enhance_node import HYFetaEnhanceNode
 
 from .nodes.wrapper_flow_edit_nodes import HyVideoFlowEditSamplerNode
 
+from .nodes.vecnode_model_sampling_3d import vecnode_ModelSamplingSD3
+from .nodes.vecnode_tweak_hunyuan import vecnode_TweakHunyuan
+
+from .nodes.vecnode_rope_twist import vecnode_HunyuanSpatialWarpModel
+
+
 
 NODE_CLASS_MAPPINGS = {
     "ConfigureModifiedHY": ConfigureModifiedHYNode,
@@ -32,7 +38,14 @@ NODE_CLASS_MAPPINGS = {
     "HYFetaEnhance": HYFetaEnhanceNode,
     # Wrapper
     "HyVideoFlowEditSamplerWrapper": HyVideoFlowEditSamplerNode,
+    # VecNode
+    "vecnode_ModelSamplingSD3": vecnode_ModelSamplingSD3,
+    "vecnode_TweakHunyuan": vecnode_TweakHunyuan,
+    "vecnode_HunyuanSpatialWarpModel": vecnode_HunyuanSpatialWarpModel,
+
 }
+
+
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ConfigureModifiedHY": "Modify Hunyuan Model",
@@ -43,6 +56,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "HYReverseODESampler": "HY RF-Inv Reverse Sampler",
     # FlowEdit
     "HYFlowEditGuider": "HY FlowEdit Guider",
+    "HYFlowEditGuiderAdv": "HY FlowEdit Guider Adv.",
     "HYFlowEditGuiderCFG": "HY FlowEdit Guider CFG",
     "HYFlowEditGuiderCFGAdv": "HY FlowEdit Guider CFG Adv.",
     "HYFlowEditSampler": "HY FlowEdit Sampler",
@@ -54,4 +68,12 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "HYFetaEnhance": "HY Feta Enhance",
     # Wrapper
     "HyVideoFlowEditSamplerWrapper": "HunyuanVideo Flow Edit Sampler (Wrapper)",
+    # VecNode
+    "vecnode_ModelSamplingSD3": "vecnode_ModelSamplingSD3",
+    "vecnode_TweakHunyuan": "vecnode_TweakHunyuan",
+    "vecnode_HunyuanSpatialWarpModel": "Hunyuan Spatial Warp (Model, Debug)",
+
 }
+
+
+

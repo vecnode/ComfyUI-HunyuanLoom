@@ -11,6 +11,9 @@ DEFAULT_REGIONAL_ATTN = {
 }
 
 
+# Attention mask module that applies regional masking only during specified denoising progress.
+# start_percent and end_percent define when the mask is active (0.0 = start of denoising, 1.0 = end).
+# The mask is applied when: start_percent <= (1 - current_sigma) < end_percent.
 class RegionalMask(torch.nn.Module):
     def __init__(self, mask: torch.Tensor, start_percent: float, end_percent: float) -> None:
         super().__init__()
@@ -25,6 +28,9 @@ class RegionalMask(torch.nn.Module):
         return None
     
 
+# Conditioning module that applies regional text conditioning during specified denoising progress.
+# start_percent and end_percent control when regional conditioning is active (0.0 = start, 1.0 = end).
+# If always_included is True, regional conditioning is always applied regardless of progress.
 class RegionalConditioning(torch.nn.Module):
     def __init__(self, region_cond: torch.Tensor, start_percent: float, end_percent: float, main_cond_strength: float, always_included: bool) -> None:
         super().__init__()
@@ -40,6 +46,9 @@ class RegionalConditioning(torch.nn.Module):
         return context
 
 
+# Creates a regional conditioning entry by combining a text condition with a spatial mask.
+# The mask defines which image regions the conditioning applies to, and can be consolidated
+# across temporal frames using different strategies (first_only, select_first, etc.).
 class HYCreateRegionalCondNode:
     @classmethod
     def INPUT_TYPES(s):
@@ -68,6 +77,10 @@ class HYCreateRegionalCondNode:
         return (prev_regions,)
 
 
+# Applies regional conditioning to a model by creating attention masks that restrict
+# text-to-image attention to specific spatial regions. start_percent and end_percent
+# control when regional conditioning is active during denoising (0.0 = start, 1.0 = end).
+# Builds attention masks for both double and single stream transformer blocks.
 class HYApplyRegionalCondsNode:
     @classmethod
     def INPUT_TYPES(s):
@@ -89,6 +102,10 @@ class HYApplyRegionalCondsNode:
 
     CATEGORY = "hunyuanloom"
 
+    # Patches the model with regional conditioning masks. start_percent/end_percent define
+    # the denoising progress range (0.0-1.0) when regional conditioning is active.
+    # Constructs attention masks that allow text tokens to only attend to their corresponding
+    # image regions, and applies these masks to specified transformer blocks.
     def patch(self, model, cond, region_conds, latent, start_percent, end_percent, main_cond_strength, always_included, attn_override=DEFAULT_REGIONAL_ATTN):
         model = model.clone()
 

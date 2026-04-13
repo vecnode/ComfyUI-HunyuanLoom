@@ -8,6 +8,8 @@ from comfy.ldm.modules.attention import optimized_attention
 from ..utils.feta_enhance_utils import get_feta_scores
 
 
+# Applies rotary position embedding (RoPE) to query (q) and key (k) tensors, then computes
+# optimized multi-head attention. Can skip RoPE application if already applied.
 def attention(q: Tensor, k: Tensor, v: Tensor, pe: Tensor, mask=None, skip_rope=False) -> Tensor:
     if not skip_rope:
         q, k = apply_rope(q, k, pe)
@@ -16,6 +18,10 @@ def attention(q: Tensor, k: Tensor, v: Tensor, pe: Tensor, mask=None, skip_rope=
     x = optimized_attention(q, k, v, heads, skip_reshape=True, mask=mask)
     return x
 
+
+# Modified double stream transformer block that processes image and text streams separately.
+# Supports custom attention masks, FETA enhancement scoring, and applies modulation
+# to both image and text streams before computing cross-attention.
 
 class ModifiedDoubleStreamBlock(DoubleStreamBlock):
     def forward(self, img: Tensor, txt: Tensor, vec: Tensor, pe: Tensor, attn_mask=None, transformer_options={}):
@@ -74,6 +80,9 @@ class ModifiedDoubleStreamBlock(DoubleStreamBlock):
         return img, txt
 
 
+# Modified single stream transformer block that processes combined image/text features.
+# Supports custom attention masks and FETA enhancement scoring for image tokens.
+# Applies modulation and computes attention with optional MLP stream processing.
 class ModifiedSingleStreamBlock(SingleStreamBlock):
     def forward(self, x: Tensor, vec: Tensor, pe: Tensor, attn_mask=None, transformer_options={}) -> Tensor:
         mod, _ = self.modulation(vec)
@@ -112,7 +121,9 @@ class ModifiedSingleStreamBlock(SingleStreamBlock):
         return x
 
 
-
+# Replaces original double and single stream blocks in the diffusion model with
+# modified versions that support FETA enhancement and custom attention masks.
+# Assigns index to each block for layer-specific operations.
 def inject_blocks(diffusion_model):
     for i, block in enumerate(diffusion_model.double_blocks):
         block.__class__ = ModifiedDoubleStreamBlock
